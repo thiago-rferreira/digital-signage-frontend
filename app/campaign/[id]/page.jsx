@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Modal, Button, List, Card, InputNumber, message } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import { Modal, Button, Card, InputNumber } from "antd";
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import styles from "./page.module.css";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
@@ -13,22 +15,25 @@ export default function CampaignMedia() {
   const [mediaList, setMediaList] = useState([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
-  const [duration, setDuration] = useState(5); // Duração padrão
+  const [modalOpen, setModalOpen] = useState(false);
+  const [duration, setDuration] = useState(10);
   const [file, setFile] = useState(null);
+  const [previewURL, setPreviewURL] = useState(null);
 
   useEffect(() => {
     fetch(`${API_URL}/media/${id}`)
       .then((res) => res.json())
       .then((data) => setMediaList(data))
-      .catch((err) => console.error("Erro ao carregar mídias:", err));
+      .catch(() => toast.error("Erro ao carregar mídias."));
   }, [id]);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
       setFile(selectedFile);
-      message.success(`Arquivo selecionado: ${selectedFile.name}`);
-      
+      setPreviewURL(URL.createObjectURL(selectedFile));
+      toast.success(`Arquivo selecionado: ${selectedFile.name}`);
+
       if (selectedFile.type.startsWith("video")) {
         const video = document.createElement("video");
         video.preload = "metadata";
@@ -36,18 +41,15 @@ export default function CampaignMedia() {
           setDuration(Math.floor(video.duration));
         };
         video.src = URL.createObjectURL(selectedFile);
+      } else {
+        setDuration(10);
       }
     }
   };
 
   const handleUpload = async () => {
     if (!file) {
-      message.error("Selecione um arquivo antes de enviar.");
-      return;
-    }
-
-    if (!duration || duration <= 0) {
-      message.error("Insira uma duração válida.");
+      toast.error("Selecione um arquivo antes de enviar.");
       return;
     }
 
@@ -65,12 +67,18 @@ export default function CampaignMedia() {
     if (response.ok) {
       const newMedia = await response.json();
       setMediaList([...mediaList, newMedia]);
-      message.success("Mídia adicionada com sucesso!");
-      setFile(null);
-      setDuration(5);
+      toast.success("Mídia adicionada com sucesso!");
+      resetModal();
     } else {
-      message.error("Erro ao enviar mídia.");
+      toast.error("Erro ao enviar mídia.");
     }
+  };
+
+  const resetModal = () => {
+    setFile(null);
+    setPreviewURL(null);
+    setDuration(10);
+    setModalOpen(false);
   };
 
   const handleConfirmDelete = (mediaId) => {
@@ -85,9 +93,9 @@ export default function CampaignMedia() {
 
     if (response.ok) {
       setMediaList(mediaList.filter((m) => m.id !== deletingId));
-      message.success("Mídia removida com sucesso.");
+      toast.success("Mídia removida com sucesso.");
     } else {
-      message.error("Erro ao excluir mídia.");
+      toast.error("Erro ao excluir mídia.");
     }
     setConfirmDelete(false);
     setDeletingId(null);
@@ -97,28 +105,9 @@ export default function CampaignMedia() {
     <div className={styles.container}>
       <h1 className={styles.title}>Gerenciar Mídias</h1>
 
-      <div className={styles.uploadSection}>
-        <InputNumber
-          min={1}
-          max={60}
-          value={duration}
-          onChange={setDuration}
-          className={styles.durationInput}
-          placeholder="Duração (segundos)"
-          disabled={file && file.type.startsWith("video")}
-        />
-        
-        <input type="file" onChange={handleFileChange} className={styles.fileInput} />
-
-        <Button
-          type="primary"
-          className={styles.submitButton}
-          onClick={handleUpload}
-          disabled={!file}
-        >
-          Enviar
-        </Button>
-      </div>
+      <Button type="primary" className={styles.addButton} onClick={() => setModalOpen(true)} icon={<PlusOutlined />}>
+        Adicionar Mídia
+      </Button>
 
       <div className={styles.mediaGrid}>
         {mediaList.map((media) => (
@@ -126,26 +115,50 @@ export default function CampaignMedia() {
             key={media.id}
             className={styles.mediaCard}
             cover={
-              media.file_type === "image"
-                ? <img src={`${API_URL}/${media.file_path}`} alt="Mídia" />
-                : <video src={`${API_URL}/${media.file_path}`} controls />
+              media.file_type === "image" ? (
+                <img src={`${API_URL}/${media.file_path}`} alt="Mídia" />
+              ) : (
+                <video src={`${API_URL}/${media.file_path}`} controls />
+              )
             }
-            actions={[
-              <DeleteOutlined
-                key="delete"
-                className={styles.deleteIcon}
-                onClick={() => handleConfirmDelete(media.id)}
-              />
-            ]}
+            actions={[<DeleteOutlined key="delete" className={styles.deleteIcon} onClick={() => handleConfirmDelete(media.id)} />]}
           >
             <p><strong>Duração:</strong> {media.duration}s</p>
           </Card>
         ))}
       </div>
 
+      <Modal title="Adicionar Nova Mídia" open={modalOpen} onCancel={resetModal} footer={null} width={800}>
+        <div className={styles.modalContent}>
+          <div className={styles.previewContainer}>
+            {previewURL ? (
+              file.type.startsWith("image") ? (
+                <img src={previewURL} className={styles.previewImage} alt="Pré-visualização" />
+              ) : (
+                <video src={previewURL} className={styles.previewVideo} controls />
+              )
+            ) : (
+              <div className={styles.previewPlaceholder}>Pré-visualização</div>
+            )}
+          </div>
+          <div className={styles.uploadForm}>
+            <label className={styles.fileLabel}>
+              Escolher Arquivo
+              <input type="file" onChange={handleFileChange} className={styles.fileInput} />
+            </label>
+            <InputNumber min={1} max={60} value={duration} onChange={setDuration} className={styles.durationInput} placeholder="Duração (segundos)" disabled={file && file.type.startsWith("video")} />
+            <Button type="primary" onClick={handleUpload} disabled={!file}>
+              Adicionar à Campanha
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
       <Modal title="Confirmar Exclusão" open={confirmDelete} onCancel={() => setConfirmDelete(false)} onOk={handleDelete}>
         <p>Tem certeza que deseja excluir esta mídia? Esta ação não pode ser desfeita.</p>
       </Modal>
+      
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} closeOnClick pauseOnHover />
     </div>
   );
 }

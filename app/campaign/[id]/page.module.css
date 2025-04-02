@@ -1,36 +1,91 @@
 .container {
-    padding: 20px;
-  }
-  
-  .title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-  
-  .button {
-    margin-bottom: 20px;
-  }
-  
-  .mediaGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
-  }
-  
-  .mediaCard {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    transition: transform 0.2s ease-in-out;
-  }
-  
-  .mediaCard:hover {
-    transform: scale(1.05);
-  }
-  
-  .deleteIcon {
-    color: red;
-    cursor: pointer;
-  }
-  
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 50px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #1890ff;
+  color: white;
+  border-radius: 8px;
+}
+
+.mediaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.mediaCard {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.deleteIcon {
+  color: red;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.modalContent {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.previewContainer {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+}
+
+.previewImage, .previewVideo {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.uploadForm {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fileLabel {
+  display: block;
+  padding: 10px;
+  background-color: #1890ff;
+  color: white;
+  text-align: center;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.fileInput {
+  display: none;
+}
+
+.durationInput {
+  width: 100%;
+}

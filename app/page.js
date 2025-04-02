@@ -76,7 +76,7 @@ export default function Home() {
           <Card key={campaign.id} title={campaign.name} className={styles.campaignCard}>
             <p>{campaign.description}</p>
             <Space className={styles.buttonGroup}>
-              <Button className={styles.button} onClick={() => router.push(`/campaign/${campaign.id}`)}>Detalhes</Button>
+              <Button className={styles.button} onClick={() => router.push(`/campaign/${campaign.id}`)}>Mídias</Button>
               <Button className={styles.button} onClick={() => handleEdit(campaign)} type="primary">Editar</Button>
               <Button className={styles.button} onClick={() => handleConfirmDelete(campaign.id)} danger>Excluir</Button>
             </Space>
