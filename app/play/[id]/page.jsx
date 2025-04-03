@@ -5,6 +5,9 @@ import { useParams } from "next/navigation";
 import styles from "./play.module.css";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const REFRESH_INTERVAL = parseInt(process.env.NEXT_PUBLIC_REFRESH_INTERVAL, 10) || 10000;
+
+console.log(REFRESH_INTERVAL);
 
 export default function PlayMedia() {
   const { id } = useParams();
@@ -13,10 +16,33 @@ export default function PlayMedia() {
   const videoRef = useRef(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/media/${id}`)
-      .then((res) => res.json())
-      .then((data) => setMediaList(data))
-      .catch((err) => console.error("Erro ao carregar mídias:", err));
+    const fetchMedia = () => {
+      fetch(`${API_URL}/media/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setMediaList((prevList) => {
+            // Remover mídias que foram deletadas
+            const updatedList = prevList.filter((media) => data.some((item) => item.id === media.id));
+
+            // Adicionar novas mídias ao final
+            const newItems = data.filter((item) => !prevList.some((media) => media.id === item.id));
+
+            // Atualizar mídias existentes (caso a duração tenha mudado, por exemplo)
+            const finalList = updatedList.map((media) => {
+              const updatedMedia = data.find((item) => item.id === media.id);
+              return updatedMedia ? updatedMedia : media;
+            });
+
+            return [...finalList, ...newItems];
+          });
+        })
+        .catch((err) => console.error("Erro ao carregar mídias:", err));
+    };
+
+    fetchMedia();
+    const interval = setInterval(fetchMedia, REFRESH_INTERVAL);
+
+    return () => clearInterval(interval);
   }, [id]);
 
   useEffect(() => {

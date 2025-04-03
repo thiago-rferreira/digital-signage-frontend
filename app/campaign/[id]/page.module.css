@@ -89,3 +89,65 @@
 .durationInput {
   width: 100%;
 }
+
+
+/* ===== ESTILOS ADICIONAIS (sem alterar os existentes) ===== */
+
+/* Container dos botões de ação (editar/excluir) */
+.mediaCard .ant-card-actions {
+  padding: 0 16px;
+  background: transparent;
+}
+
+/* Ícones de ação */
+.editIcon {
+  color: #1890ff;
+  transition: all 0.2s;
+}
+
+.editIcon:hover {
+  color: #40a9ff;
+  transform: scale(1.1);
+}
+
+.deleteIcon {
+  transition: all 0.2s;
+}
+
+.deleteIcon:hover {
+  transform: scale(1.1);
+}
+
+/* Seção de edição de duração */
+.editDurationContainer {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  align-items: center;
+}
+
+.editDurationContainer .durationInput {
+  width: 80px !important;
+  margin-right: 8px;
+}
+
+.editDurationContainer button {
+  padding: 4px 8px;
+  font-size: 12px;
+  height: auto;
+}
+
+/* Botão Salvar */
+.editDurationContainer button:first-of-type {
+  background-color: #52c41a;
+  border-color: #52c41a;
+  color: white;
+}
+
+/* Botão Cancelar */
+.editDurationContainer button:last-of-type {
+  color: #ff4d4f;
+  border-color: #ff4d4f;
+  background: transparent;
+}
+

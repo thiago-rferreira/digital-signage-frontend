@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Modal, Button, Card, InputNumber } from "antd";
-import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Modal, Button, Card, InputNumber, Popconfirm } from "antd";
+import { PlusOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "./page.module.css";
@@ -19,13 +19,19 @@ export default function CampaignMedia() {
   const [duration, setDuration] = useState(10);
   const [file, setFile] = useState(null);
   const [previewURL, setPreviewURL] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editDuration, setEditDuration] = useState(10);
 
   useEffect(() => {
+    fetchMedia();
+  }, [id]);
+
+  const fetchMedia = () => {
     fetch(`${API_URL}/media/${id}`)
       .then((res) => res.json())
       .then((data) => setMediaList(data))
       .catch(() => toast.error("Erro ao carregar mídias."));
-  }, [id]);
+  };
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -101,6 +107,34 @@ export default function CampaignMedia() {
     setDeletingId(null);
   };
 
+  const handleEditDuration = (media) => {
+    setEditingId(media.id);
+    setEditDuration(media.duration);
+  };
+
+  const handleUpdateDuration = async () => {
+    if (!editingId) return;
+
+    const response = await fetch(`${API_URL}/media/${editingId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        duration: editDuration,
+        file_type: mediaList.find(m => m.id === editingId)?.file_type
+      }),
+    });
+
+    if (response.ok) {
+      toast.success("Duração atualizada com sucesso!");
+      fetchMedia(); // Atualiza a lista
+      setEditingId(null);
+    } else {
+      toast.error("Erro ao atualizar duração.");
+    }
+  };
+
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Gerenciar Mídias</h1>
@@ -121,9 +155,47 @@ export default function CampaignMedia() {
                 <video src={`${API_URL}/${media.file_path}`} controls />
               )
             }
-            actions={[<DeleteOutlined key="delete" className={styles.deleteIcon} onClick={() => handleConfirmDelete(media.id)} />]}
+            actions={[
+              <EditOutlined 
+                key="edit" 
+                onClick={() => handleEditDuration(media)} 
+                className={styles.editIcon}
+              />,
+              <DeleteOutlined 
+                key="delete" 
+                onClick={() => handleConfirmDelete(media.id)} 
+                className={styles.deleteIcon}
+              />
+            ]}
           >
-            <p><strong>Duração:</strong> {media.duration}s</p>
+            {editingId === media.id ? (
+              <div className={styles.editDurationContainer}>
+                <InputNumber 
+                  min={1} 
+                  max={86400} 
+                  value={editDuration} 
+                  onChange={setEditDuration}
+                  className={styles.durationInput}
+                />
+                <Button 
+                  type="primary" 
+                  size="small" 
+                  onClick={handleUpdateDuration}
+                  className={styles.saveButton}
+                >
+                  Salvar
+                </Button>
+                <Button 
+                  size="small" 
+                  onClick={() => setEditingId(null)}
+                  className={styles.cancelButton}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            ) : (
+              <p><strong>Duração:</strong> {media.duration}s</p>
+            )}
           </Card>
         ))}
       </div>
@@ -146,7 +218,15 @@ export default function CampaignMedia() {
               Escolher Arquivo
               <input type="file" onChange={handleFileChange} className={styles.fileInput} />
             </label>
-            <InputNumber min={1} max={60} value={duration} onChange={setDuration} className={styles.durationInput} placeholder="Duração (segundos)" disabled={file && file.type.startsWith("video")} />
+            <InputNumber 
+              min={1} 
+              max={60} 
+              value={duration} 
+              onChange={setDuration} 
+              className={styles.durationInput} 
+              placeholder="Duração (segundos)" 
+              disabled={file && file.type.startsWith("video")} 
+            />
             <Button type="primary" onClick={handleUpload} disabled={!file}>
               Adicionar à Campanha
             </Button>
