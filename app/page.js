@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Modal, Button, Input, Card, Space } from "antd";
 import styles from "./page.module.css";
+import { Header } from "@/app/components/Header";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -67,6 +68,7 @@ export default function Home() {
 
   return (
     <div className={styles.container}>
+
       <h1 className={styles.title}>Campanhas</h1>
       <Button type="primary" className={styles.button} onClick={() => { setOpen(true); setEditing(null); setName(""); setDescription(""); }}>
         Criar Campanha
