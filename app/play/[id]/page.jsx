@@ -7,8 +7,6 @@ import styles from "./play.module.css";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 const REFRESH_INTERVAL = parseInt(process.env.NEXT_PUBLIC_REFRESH_INTERVAL, 10) || 10000;
 
-console.log(REFRESH_INTERVAL);
-
 export default function PlayMedia() {
   const { id } = useParams();
   const [mediaList, setMediaList] = useState([]);
@@ -21,13 +19,14 @@ export default function PlayMedia() {
         .then((res) => res.json())
         .then((data) => {
           setMediaList((prevList) => {
-            // Remover mídias que foram deletadas
-            const updatedList = prevList.filter((media) => data.some((item) => item.id === media.id));
+            const updatedList = prevList.filter((media) =>
+              data.some((item) => item.id === media.id)
+            );
 
-            // Adicionar novas mídias ao final
-            const newItems = data.filter((item) => !prevList.some((media) => media.id === item.id));
+            const newItems = data.filter(
+              (item) => !prevList.some((media) => media.id === item.id)
+            );
 
-            // Atualizar mídias existentes (caso a duração tenha mudado, por exemplo)
             const finalList = updatedList.map((media) => {
               const updatedMedia = data.find((item) => item.id === media.id);
               return updatedMedia ? updatedMedia : media;
@@ -45,14 +44,24 @@ export default function PlayMedia() {
     return () => clearInterval(interval);
   }, [id]);
 
+  // Corrige o índice se ele estiver fora dos limites após atualização
+  useEffect(() => {
+    if (currentMediaIndex >= mediaList.length && mediaList.length > 0) {
+      setCurrentMediaIndex(0);
+    }
+  }, [mediaList, currentMediaIndex]);
+
   useEffect(() => {
     if (mediaList.length === 0) return;
-    
+
     const currentMedia = mediaList[currentMediaIndex];
-    
+    if (!currentMedia) return;
+
     if (currentMedia.file_type === "image") {
       const timer = setTimeout(() => {
-        setCurrentMediaIndex((prevIndex) => (prevIndex + 1) % mediaList.length);
+        setCurrentMediaIndex((prevIndex) =>
+          mediaList.length > 0 ? (prevIndex + 1) % mediaList.length : 0
+        );
       }, currentMedia.duration * 1000);
       return () => clearTimeout(timer);
     }
@@ -61,11 +70,14 @@ export default function PlayMedia() {
   useEffect(() => {
     if (videoRef.current) {
       const playVideo = () => {
-        videoRef.current.play().catch((err) => console.error("Erro ao reproduzir vídeo:", err));
+        videoRef.current
+          .play()
+          .catch((err) => console.error("Erro ao reproduzir vídeo:", err));
       };
-      
+
       videoRef.current.addEventListener("canplaythrough", playVideo);
-      return () => videoRef.current?.removeEventListener("canplaythrough", playVideo);
+      return () =>
+        videoRef.current?.removeEventListener("canplaythrough", playVideo);
     }
   }, [currentMediaIndex]);
 
@@ -77,18 +89,18 @@ export default function PlayMedia() {
     );
   }
 
-  const currentMedia = mediaList[currentMediaIndex];
+  const currentMedia = mediaList[currentMediaIndex] || null;
 
   return (
     <div className={styles.container}>
       <div className={styles.mediaWrapper}>
-        {currentMedia.file_type === "image" ? (
+        {currentMedia && currentMedia.file_type === "image" ? (
           <img
             src={`${API_URL}/${currentMedia.file_path}`}
             alt="Mídia"
             className={styles.media}
           />
-        ) : (
+        ) : currentMedia ? (
           <video
             ref={videoRef}
             src={`${API_URL}/${currentMedia.file_path}`}
@@ -98,9 +110,13 @@ export default function PlayMedia() {
             muted={true}
             loop={false}
             controls={false}
-            onEnded={() => setCurrentMediaIndex((prevIndex) => (prevIndex + 1) % mediaList.length)}
+            onEnded={() =>
+              setCurrentMediaIndex((prevIndex) =>
+                mediaList.length > 0 ? (prevIndex + 1) % mediaList.length : 0
+              )
+            }
           />
-        )}
+        ) : null}
       </div>
     </div>
   );
