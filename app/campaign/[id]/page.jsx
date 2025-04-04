@@ -139,8 +139,8 @@ export default function CampaignMedia() {
     <div className={styles.container}>
       <h1 className={styles.title}>Gerenciar Mídias</h1>
 
-      <Button type="primary" className={styles.addButton} onClick={() => setModalOpen(true)} icon={<PlusOutlined />}>
-        Adicionar Mídia
+      <Button type="primary" className={styles.addButton} onClick={() => setModalOpen(true)} >
+      <PlusOutlined />
       </Button>
 
       <div className={styles.mediaGrid}>

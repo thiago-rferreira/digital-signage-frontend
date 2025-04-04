@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Modal, Button, Input, Card, Space } from "antd";
+import { Modal, Button, Input, Card, Space, Typography, theme } from "antd";
 import styles from "./page.module.css";
 import { Header } from "@/app/components/Header";
+
+const { Title, Text } = Typography;
+const { useToken } = theme;
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -17,6 +20,7 @@ export default function Home() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const router = useRouter();
+  const { token } = useToken();
 
   useEffect(() => {
     fetch(`${API_URL}/campaigns`)
@@ -68,31 +72,86 @@ export default function Home() {
 
   return (
     <div className={styles.container}>
-
-      <h1 className={styles.title}>Campanhas</h1>
-      <Button type="primary" className={styles.button} onClick={() => { setOpen(true); setEditing(null); setName(""); setDescription(""); }}>
-        Criar Campanha
-      </Button>
+      <div className={styles.header}>
+        <Title level={2} className={styles.title}>Campanhas</Title>
+        <Button 
+          type="primary" 
+          size="large"
+          className={styles.createButton}
+          onClick={() => { setOpen(true); setEditing(null); setName(""); setDescription(""); }}
+        >
+          Criar Campanha
+        </Button>
+      </div>
+      
       <div className={styles.campaignsGrid}>
         {campaigns.map((campaign) => (
-          <Card key={campaign.id} title={campaign.name} className={styles.campaignCard}>
-            <p>{campaign.description}</p>
+          <Card 
+            key={campaign.id} 
+            title={<Text strong style={{ fontSize: token.fontSizeLG }}>{campaign.name}</Text>} 
+            className={styles.campaignCard}
+            hoverable
+          >
+            <Text type="secondary" className={styles.description}>{campaign.description}</Text>
             <Space className={styles.buttonGroup}>
-              <Button className={styles.button} onClick={() => router.push(`/campaign/${campaign.id}`)}>Mídias</Button>
-              <Button className={styles.button} onClick={() => handleEdit(campaign)} type="primary">Editar</Button>
-              <Button className={styles.button} onClick={() => handleConfirmDelete(campaign.id)} danger>Excluir</Button>
+              <Button 
+                className={styles.button} 
+                onClick={() => router.push(`/campaign/${campaign.id}`)}
+              >
+                Mídias
+              </Button>
+              <Button 
+                className={styles.button} 
+                onClick={() => handleEdit(campaign)} 
+                type="default"
+              >
+                Editar
+              </Button>
+              <Button 
+                className={styles.button} 
+                onClick={() => handleConfirmDelete(campaign.id)} 
+                danger
+              >
+                Excluir
+              </Button>
             </Space>
           </Card>
         ))}
       </div>
       
-      <Modal title={editing ? "Editar Campanha" : "Criar Nova Campanha"} open={open} onCancel={() => setOpen(false)} onOk={handleCreateOrUpdateCampaign}>
-        <Input placeholder="Nome" value={name} onChange={(e) => setName(e.target.value)} />
-        <Input.TextArea placeholder="Descrição" value={description} onChange={(e) => setDescription(e.target.value)} />
+      <Modal 
+        title={editing ? "Editar Campanha" : "Criar Nova Campanha"} 
+        open={open} 
+        onCancel={() => setOpen(false)} 
+        onOk={handleCreateOrUpdateCampaign}
+        okText={editing ? "Atualizar" : "Criar"}
+        cancelText="Cancelar"
+      >
+        <Input 
+          placeholder="Nome" 
+          value={name} 
+          onChange={(e) => setName(e.target.value)} 
+          className={styles.modalInput}
+        />
+        <Input.TextArea 
+          placeholder="Descrição" 
+          value={description} 
+          onChange={(e) => setDescription(e.target.value)} 
+          className={styles.modalInput}
+          rows={4}
+        />
       </Modal>
       
-      <Modal title="Confirmar Exclusão" open={confirmDelete} onCancel={() => setConfirmDelete(false)} onOk={handleDelete}>
-        <p>Tem certeza que deseja excluir esta campanha? Todas as mídias associadas a ela serão perdidas.</p>
+      <Modal 
+        title="Confirmar Exclusão" 
+        open={confirmDelete} 
+        onCancel={() => setConfirmDelete(false)} 
+        onOk={handleDelete}
+        okText="Excluir"
+        cancelText="Cancelar"
+        okButtonProps={{ danger: true }}
+      >
+        <Text>Tem certeza que deseja excluir esta campanha? Todas as mídias associadas a ela serão perdidas.</Text>
       </Modal>
     </div>
   );
