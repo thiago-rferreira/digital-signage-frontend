@@ -1,0 +1,88 @@
+.container {
+    width: 100vw;
+    height: 100vh;
+    padding: 2rem;
+    background-image: url('https://www.metoffice.gov.uk/binaries/content/gallery/metofficegovuk/hero-images/advice/industry/weather-forecast-background.jpg');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* centraliza verticalmente */
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  
+  .title {
+    font-size: 3rem;
+    color: #ffffff;
+    text-shadow: 0 0 12px rgba(0, 0, 0, 0.7);
+    margin-bottom: 2rem;
+    font-weight: 700;
+    text-align: center;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* aumenta largura mínima */
+    gap: 2rem;
+    width: 100%;
+    max-width: 1400px;
+    justify-items: center;
+    align-items: stretch; /* garante altura igual */
+  }
+  
+  .card {
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 240px;
+    text-align: center;
+    color: #ffffff;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.8s ease forwards;
+    opacity: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: transform 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+  }
+  
+  @keyframes fadeIn {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .city {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+  }
+  
+  .temp {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+    color: #fff;
+    text-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+  }
+  
+  .desc {
+    font-size: 1.1rem;
+    font-weight: 400;
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+  }
+  

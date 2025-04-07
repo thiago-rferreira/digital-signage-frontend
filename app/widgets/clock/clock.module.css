@@ -1,0 +1,15 @@
+.container {
+    width: 100vw;
+    height: 100vh;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .clock {
+    color: black;
+    font-size: 20vw;
+    font-family: monospace;
+  }
+  

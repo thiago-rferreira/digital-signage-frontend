@@ -5,7 +5,9 @@ import Header from "./components/Header";
 
 export default function LayoutWrapper({ children }) {
   const pathname = usePathname();
-  const showHeader = !pathname.startsWith("/play/");
+  const isPlayPage = pathname.startsWith("/play/");
+  const isWidgetPage = pathname.startsWith("/widgets/");
+  const showHeader = !isPlayPage && !isWidgetPage;
 
   return (
     <>

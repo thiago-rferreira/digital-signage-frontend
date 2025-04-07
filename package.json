@@ -15,7 +15,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
-    "react-toastify": "^11.0.5"
+    "react-icons": "^5.5.0",
+    "react-toastify": "^11.0.5",
+    "rss-parser": "^3.13.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
